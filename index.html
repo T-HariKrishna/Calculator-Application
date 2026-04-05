@@ -89,13 +89,23 @@
       }
 
       .clear {
-        grid-column: span 4;
+        grid-column: span 2;
         background-color: #ef4444;
         color: #fff;
       }
 
       .clear:hover {
         background-color: #dc2626;
+      }
+
+      .backspace {
+        grid-column: span 2;
+        background-color: #3b82f6;
+        color: #fff;
+      }
+
+      .backspace:hover {
+        background-color: #2563eb;
       }
 
       @media (max-width: 480px) {
@@ -107,15 +117,17 @@
         button {
           height: 42px;
           font-size: 16px;
-        }
+        }        
       }
+     
+      
     </style>
   </head>
 
   <body>
     <form>
       <div class="calc">
-        <input type="text" id="displayPreview" readonly />
+        <input type="text" id="displayPreview" readonly onclick="usePreview()"/>
         <input type="text" id="display" placeholder="0" />
 
         <div class="buttons">
@@ -139,35 +151,67 @@
           <button type="submit" class="equal">=</button>
           <button type="button" class="operator" onclick="press('+')">+</button>
 
-          <button type="button" class="clear" onclick="clearDisplay()">
-            Clear
-          </button>
+          <!-- NEW BUTTONS -->
+          <button type="button" class="backspace" onclick="deleteLast()">⌫</button>
+          <button type="button" class="clear" onclick="clearDisplay()">Clear</button>
         </div>
-      </div>
+       </div>
     </form>
 
     <script>
+      function usePreview() {
+  let preview = document.getElementById("displayPreview").value;
+  let input = document.getElementById("display");
+
+  if (preview) {
+    input.value = preview;
+
+    // move cursor to end
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+}
+      const input = document.getElementById("display");
+
+      function moveCursorToEnd() {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+
       function press(v) {
-        document.getElementById("display").value += v;
+        input.value += v;
+        moveCursorToEnd();
+      }
+
+      function deleteLast() {
+        input.value = input.value.slice(0, -1);
+        moveCursorToEnd();
       }
 
       function clearDisplay() {
-        document.getElementById("display").value = "";
+        input.value = "";
         document.getElementById("displayPreview").value = "";
+        moveCursorToEnd();
       }
+
+      // Prevent cursor from going middle
+      input.addEventListener("click", moveCursorToEnd);
+      input.addEventListener("keyup", moveCursorToEnd);
 
       document.querySelector("form").addEventListener("submit", function (e) {
         e.preventDefault();
 
-        let exp = document.getElementById("display").value;
+        let exp = input.value;
         document.getElementById("displayPreview").value = exp;
 
         try {
           let ans = eval(exp);
-          document.getElementById("display").value = ans;
+          input.value = ans;
         } catch {
-          document.getElementById("display").value = "Error";
+          input.value = "Error";
         }
+
+        moveCursorToEnd();
       });
     </script>
   </body>
